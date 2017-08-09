@@ -18,31 +18,63 @@
 							<input type="number" v-model="book.publicacion" :disabled="loading"  id="Publicación">
 		          <label for="Publicación">Teléfono</label>
 						</div>
-
-						<div class="input-field col s12">
+						<div class="input-field col s11">
 							<i class="material-icons prefix">email</i>
-							<input type="text" v-model="book.titulo" :disabled="loading"  id="Correos">
+							<input type="text" v-model="correo" :disabled="loading"  id="Correos">
 		          <label for="Correos">Correos electrónicos</label>
 						</div>
-						<div class="input-field col s12">
+						<div class="col s1">
+							<a v-on:click="addCorreos()" class="btn-floating btn-small waves-effect waves-light grey darken-4">
+								<i class="material-icons">add</i>
+							</a>
+						</div>
+						<div class="col s12">
+							<ul id="example-2">
+							  <li v-for="correo in correos">
+									<h5>-{{ correo }}</h5>
+							  </li>
+							</ul>
+						</div>
+						<div class="input-field col s11">
 							<i class="material-icons prefix">whatshot</i>
-							<input type="number" v-model="book.publicacion" :disabled="loading"  id="Redes">
+							<input type="text" v-model="red" :disabled="loading"  id="Redes">
 		          <label for="Redes">Redes Sociales</label>
+						</div>
+						<div class="col s1">
+							<a v-on:click="addRedes()" class="btn-floating btn-small waves-effect waves-light grey darken-4">
+								<i class="material-icons">add</i>
+							</a>
+						</div>
+						<div class="col s12">
+							<ul id="example-3">
+							  <li v-for="red in redes">
+									<h5>-{{ red }}</h5>
+							  </li>
+							</ul>
 						</div>
 						<h2> Nuevo Vinculo </h2>
 						<div class="input-field col s5">
 							<i class="material-icons prefix">perm_contact_calendar</i>
-							<input v-model="book.keywords" :disabled="loading" id="Keywords" type="text"  class="validate">
+							<input v-model="vinculo.nombre" :disabled="loading" id="Keywords" type="text"  class="validate">
 		          <label for="Keywords">Nombre</label>
 		        </div>
 						<div class="input-field col s5">
 							<i class="material-icons prefix">fingerprint</i>
-		          <input v-model="book.keywords" :disabled="loading" id="Keywords" type="text"  class="validate">
+		          <input v-model="vinculo.tipo" :disabled="loading" id="Keywords" type="text"  class="validate">
 		          <label for="Keywords">Vinculo</label>
 		        </div>
-						<a v-on:click="startToModifyBook(book)" class="btn-floating btn-small waves-effect waves-light grey darken-4">
-							<i class="material-icons">add</i>
-						</a>
+						<div class="col s2">
+							<a v-on:click="addVinculo()" class="btn-floating btn-small waves-effect waves-light grey darken-4">
+								<i class="material-icons">add</i>
+							</a>
+						</div>
+						<div class="col s12">
+							<ul id="example-1">
+							  <li v-for="vinculo in vinculos">
+									<h5>{{ vinculo.nombre }} - {{ vinculo.tipo }}</h5>
+							  </li>
+							</ul>
+						</div>
 		      </div>
 					<a class="waves-effect waves-light btn-large center" v-on:click="llamadoFuncion" :disabled="loading" id="boton">
 						<i class="material-icons left" >check_circle</i> OK!
@@ -97,6 +129,7 @@
 				accion:'',
 				loading: false,
 
+
 				contact: {},
 				contacts: [],
 				vinculo: {
@@ -104,10 +137,15 @@
 					tipo: ''
 				},
 				vinculos: [
+					{
+						nombre: 'vinculos',
+						tipo: '...'
+					}
 				],
-				correos: [],
-				redes:[]
-
+				correo: '',
+				correos: ['correos...'],
+				red: '',
+				redes:['redes sociales...']
 			}
 		},
 		methods: {
@@ -116,8 +154,38 @@
 					this.books=response.body;
 				});
 			},
+			addVinculo(){
+				if(this.vinculos.length>=1){
+					this.vinculos.push(this.vinculo);
+					this.vinculo = {};
+					if (this.vinculos[0].nombre =='vinculos') {
+						this.vinculos.splice(0,1);
+					}
+
+				}
+			},
+			addCorreos(){
+				this.correos.push(this.correo);
+				this.correo = '';
+				console.log('eeeenee');
+			},
+			addRedes(){
+				this.redes.push(this.red);
+				this.red = '';
+				console.log('ssss');
+			},
 			nuevoBook(){
 				this.book = {};
+				this.vinculo = {};
+				this.correo={};
+				this.red ={};
+				this.vinculos=[];
+				this.vinculos[0]={
+					nombre: 'vinculos',
+					tipo: '...'
+				};
+				this.correos=[];
+				this.redes=[];
 			},
 			llamadoFuncion(){
 				if(this.idModificar!=''){
@@ -157,37 +225,6 @@
 				$('#modal1').modal('open');
         Materialize.updateTextFields();
 			},
-			// createBook(){
-			// 	this.loading=true;
-			// 	this.$http.post('http://localhost:8000/books/create',this.book)
-			// 	.then((response)=>{
-			// 		this.loading=false;
-			// 		if(response.body.success){
-			// 			swal("Creado con exito!", "Los cambios estan en la tabla", "success");
-			// 			this.getBooks();
-			// 		}else{
-			// 			sweetAlert("Oops...", "Error al crear", "error");
-			// 		}
-			// 	});
-			// },
-			// modifyBook(){
-      //   this.loading=true;
-      //   if(this.idModificar!=''){
-      //     Materialize.updateTextFields();
-      //     this.$http.put('http://localhost:8000/books/update/'+this.idModificar,this.book)
-  		// 		.then((response)=>{
-  		// 			if(response.body.success){
-      //         this.getBooks();
-      //         this.loading=false;
-  		// 				sweetAlert("Modificado con exito!", "Los cambios estan en la tabla", "success");
-      //         this.book= {};
-  		// 			}else{
-  		// 				sweetAlert("Oops...", "Error al modificar", "error");
-      //         this.loading=false;
-      //       }
-  		// 		});
-      //   }
-      // },
 			deleteBook(id){
 					this.loading=true;
 					this.$http.delete('http://localhost:8000/books/delete/'+id)
